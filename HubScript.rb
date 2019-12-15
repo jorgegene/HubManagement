@@ -6,6 +6,13 @@ include NETSNMP
 
 @host = "192.168.113.202"
 
+def GetPortInterface(port)
+    manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
+    oid = "1.3.6.1.4.1.43.10.26.1.1.1.5.1."+port
+    value = manager.get(oid: oid)
+    return value
+end
+
 def ListAllPorts(segmentIds)
   i = 1
   manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
@@ -41,12 +48,10 @@ def ValidPort?(port)
 end
 
 def BandwithOnPort(port)
+    value = GetPortInterface(port)
     manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
-    oid = "1.3.6.1.4.1.171.11.113.1.3.2.2.1.1.5."+port
-    manager.walk(oid: oid).each do |oid_code, value|
-        puts "for #{oid_code}: #{value}"
-    end
-
+    oid = "1.3.6.1.4.1.43.10.26.1.1.1.5.1."+port
+    value = manager.get(oid: oid)
 end
 
 def ChangePort2NewSegment(port)
