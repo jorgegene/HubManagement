@@ -45,7 +45,7 @@ begin
         if option == "1" then
             ListAllPorts()
         elsif option == "2" then
-            
+
         elsif option == "3" then
             dentro = false
             while dentro == false do
