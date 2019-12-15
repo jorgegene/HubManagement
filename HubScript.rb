@@ -6,19 +6,26 @@ include NETSNMP
 
 @host = "192.168.113.202"
 
+def GetPortInterface(port)
+    manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
+    oid = "1.3.6.1.4.1.43.10.26.1.1.1.5.1."+port
+    value = manager.get(oid: oid)
+    return value
+end
+
 def ListAllPorts(segmentIds)
   i = 1
   manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
   manager.walk(oid: "1.3.6.1.4.1.43.10.26.1.1.1.5").each do |oid_code, value|
     if(i < 15)
       if value == segmentIds.at(0)
-        puts "Port #{i} - Segment #{1}"
+        puts "Port #{i}\t  Segment #{1}".green
       elsif value == segmentIds.at(1)
-        puts "Port #{i} - Segment #{2}"
+        puts "Port #{i}\t  Segment #{2}".green
       elsif value == segmentIds.at(2)
-        puts "Port #{i} - Segment #{3}"
+        puts "Port #{i}\t  Segment #{3}".green
       else
-        puts "Port #{i} - Segment #{4}"
+        puts "Port #{i}\t  Segment #{4}".green
       end
       i = i + 1
     end
@@ -40,7 +47,10 @@ def ValidPort?(port)
 end
 
 def BandwithOnPort(port)
-
+    value = GetPortInterface(port)
+    manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
+    oid = "1.3.6.1.4.1.43.10.26.1.1.1.5.1."+port
+    value = manager.get(oid: oid)
 end
 
 def ChangePort2NewSegment(port, segmentIds)
@@ -109,19 +119,19 @@ begin
         elsif option == "3" then
             dentro = false
             while dentro == false do
-                puts "Select port to see Bandwith [1-14] or 0 to go back to the Menu"
+                puts "Select port to see Bandwith [1-14]. 0 to go back to the Menu".green
                 port = gets.chomp
                 if port == "0" then
                     dentro = true
-                elsif ValidPort?(port) then
+                elsif ValidPort?(port.to_i) then
                    BandwithOnPort(port)
                 else
-                    puts "Incorrect port\n".red
+                    puts "Incorrect port".red
                 end
             end
 
-        elsif option == "4" then  # Close the program
-            puts "Closing program"
+        elsif option == "4" then
+            puts "Closing program".yellow
             fin = true
         else
             puts "Incorrect option, use a valid number".red
