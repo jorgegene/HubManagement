@@ -1,18 +1,20 @@
 #!/usr/bin/ruby
 
 require 'colorize'
-require 'snmp'
-include SNMP
+require 'netsnmp'
+include NETSNMP
+
 @host = "192.168.113.202"
 
 
 
 def ListAllPorts()
-    ifTable = ObjectId.new("1.3.6.1.4.1.43.10.26.1.1.1.5")
-    SNMP::Manager.open(:host => @host,:community => 'security',:version => :SNMPv1) do |manager|
-        manager.walk("ifTable") { |vb| puts vb }
+    manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
+    manager.walk(oid: "1.3.6.1.4.1.43.10.26.1.1.1.5").each do |oid_code, value|
+        puts "for #{oid_code}: #{value}"
     end
 end
+
 def ValidPort?(port)
     if port.is_a? Integer then
         if port >= 1 && port <= 14 then
@@ -29,11 +31,12 @@ end
 
 def BandwithOnPort(port)
 end
+
 begin
     fin = false
 
     option1 = "1) List all ports.\n"
-    option2 = "2) Change port to a segment.\n"
+    option2 = "2) Change port to a different segment.\n"
     option3 = "3) Bandwith on a port\n"
     option4 = "4) Exit"
 
@@ -54,7 +57,7 @@ begin
                 if port == "0" then
                     dentro = true
                 elsif ValidPort?(port) then
-                   BandwithOnPort(port) 
+                   BandwithOnPort(port)
                 else
                     puts "Incorrect port"
                 end
