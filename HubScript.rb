@@ -31,11 +31,12 @@ def ListAllPorts(segmentIds)
     end
   end
   manager.close
+  puts "\n"
 end
 
 def ValidPort?(port)
   portI = port.to_i
-  if port >= 1 && port <= 14 then
+  if portI >= 1 && portI <= 14 then
       if port == 12
           puts "Port 12 not allowed"
           return false
@@ -59,12 +60,17 @@ def ChangePort2NewSegment(port, segmentIds)
       puts "Select new segment [1-4] for port" + port + "or 0 to go back to the port select"
       segment = gets.chomp
       segment = segment.to_i
-      if segment == "0" then
+      if segment == 0 then
         dentro = true
       elsif segment > 0 && segment < 4 then
+        query = "1.3.6.1.4.1.43.10.26.1.1.1.5.1." + port
+        valor = segmentIds.at(segment-1).to_i
+        puts query
+        puts valor
         manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
-        manager.set("1.3.6.1.4.1.43.10.26.1.1.1.5"+port, value: segmentIds.at(segment-1))
+        manager.set(oid: query, value: valor)
         manager.close
+        dentro = true
       else
           puts "Incorrect segment\n".red
       end
