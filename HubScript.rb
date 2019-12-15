@@ -12,13 +12,13 @@ def ListAllPorts(segmentIds)
   manager.walk(oid: "1.3.6.1.4.1.43.10.26.1.1.1.5").each do |oid_code, value|
     if(i < 15)
       if value == segmentIds.at(0)
-        puts "Port #{i} - Segment #{1}"
+        puts "Port #{i}\t  Segment #{1}".green
       elsif value == segmentIds.at(1)
-        puts "Port #{i} - Segment #{2}"
+        puts "Port #{i}\t  Segment #{2}".green
       elsif value == segmentIds.at(2)
-        puts "Port #{i} - Segment #{3}"
+        puts "Port #{i}\t  Segment #{3}".green
       else
-        puts "Port #{i} - Segment #{4}"
+        puts "Port #{i}\t  Segment #{4}".green
       end
       i = i + 1
     end
