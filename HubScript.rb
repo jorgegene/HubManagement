@@ -5,7 +5,7 @@
  This script needs to install "colorize" and "netsnmp" to work propertly.
  Use "sudo gem install colorize & sudo gem install netsnmp"
 
- Change the @host variable with the ip of the device you're going to admin.
+ Change the $host variable with the ip of the device you're going to admin.
  Run the script like following: "./HubManagement.rd"
 
 =end
@@ -14,10 +14,10 @@ require 'colorize'
 require 'netsnmp'
 include NETSNMP
 
-@host = "192.168.113.202"
+$host = "192.168.113.202"
 
 def GetPortInterface(port)
-    manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
+    manager = Client.new(:host => $host,:community => 'security',:version => :SNMPv1)
     oid = "1.3.6.1.4.1.43.10.26.1.1.1.5.1."+port
     value = manager.get(oid: oid)
     return value
@@ -26,20 +26,57 @@ end
 # List all ports of the device followed by the segment they belong to.
 def ListAllPorts(segmentIds)
   i = 1
-  manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
+  s1 = Array.new
+  s2 = Array.new
+  s3 = Array.new
+  s4 = Array.new
+
+  manager = Client.new(:host => $host,:community => 'security',:version => :SNMPv1)
   manager.walk(oid: "1.3.6.1.4.1.43.10.26.1.1.1.5").each do |oid_code, value|
     if(i < 15)
       if value == segmentIds.at(0)
-        puts "Port #{i}\t  Segment #{1}".light_green
+        s1.push(i.to_s)
       elsif value == segmentIds.at(1)
-        puts "Port #{i}\t  Segment #{2}".light_green
+        s2.push(i.to_s)
       elsif value == segmentIds.at(2)
-        puts "Port #{i}\t  Segment #{3}".light_green
+        s3.push(i.to_s)
       else
-        puts "Port #{i}\t  Segment #{4}".light_green
+        s4.push(i.to_s)
       end
       i = i + 1
     end
+  end
+  puts "* Segment 1:".light_green.bold
+  if !s1.empty?
+    s1.each do |p|
+      puts ("\t- Port " + p).green
+    end
+  else
+    puts "\n"
+  end
+  puts "\n* Segment 2:".light_green.bold
+  if !s2.empty?
+    s2.each do |p|
+      puts ("\t- Port " + p).green
+    end
+  else
+    puts "\n"
+  end
+  puts "\n* Segment 3:".light_green.bold
+  if !s3.empty?
+    s3.each do |p|
+      puts ("\t- Port " + p).green
+    end
+  else
+    puts "\n"
+  end
+  puts "\n* Segment 4:".light_green.bold
+  if !s4.empty?
+    s4.each do |p|
+      puts ("\t- Port " + p).green
+    end
+  else
+    puts "\n"
   end
   manager.close
   puts "\n"
@@ -63,7 +100,7 @@ end
 # List all ports of the device followed by its type
 def ListPortTypes(segmentIds)
   i = 1
-  manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
+  manager = Client.new(:host => $host,:community => 'security',:version => :SNMPv1)
   manager.walk(oid: "1.3.6.1.4.1.43.10.26.1.1.1.7").each do |oid_code, value|
     if(i < 15)
       if value == 2
@@ -94,7 +131,7 @@ def ChangePort2NewSegment(port, segmentIds)
         valor = segmentIds.at(segment-1).to_i
         puts query
         puts valor
-        manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
+        manager = Client.new(:host => $host,:community => 'security',:version => :SNMPv1)
         manager.set(oid: query, value: valor)
         manager.close
         dentro = true
@@ -108,7 +145,7 @@ end
 def GetSegmentIds()
   i = 1
   segmentIds = Array.new
-  manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
+  manager = Client.new(:host => $host,:community => 'security',:version => :SNMPv1)
   manager.walk(oid: "1.3.6.1.4.1.43.10.26.1.1.1.5").each do |oid_code, value|
     if(i > 14 && i < 19)
       segmentIds.push(value)
@@ -119,9 +156,21 @@ def GetSegmentIds()
   return segmentIds
 end
 
+def changeDeviceIp()
+  manager = Client.new(:host => $host,:community => 'security',:version => :SNMPv1)
+  oid = "1.3.6.1.4.1.43.10.27.1.1.1.15.1"
+  value = manager.get(oid: oid)
+
+  return value
+end
+
 # Main body of the script
 begin
-    fin = false
+  if(ARGV.size > 0)
+    $host = ARGV[0].to_s
+  end
+
+  fin = false
 
     option1 = "1)".bold + " List all ports.\n"
     option2 = "2)".bold + " Change port to a different segment.\n"
@@ -131,6 +180,7 @@ begin
 
     menu ="Select operation number:\n".bold+option1+option2+option3+option4+option5
     segmentIds = GetSegmentIds()
+
 
     while fin == false do
         puts menu.light_yellow
@@ -153,21 +203,10 @@ begin
           end
 
         elsif option == "3" then
-            dentro = false
-            while dentro == false do
-                puts "Select port to see Bandwith [1-14]. 0 to go back to the Menu".light_cyan
-                port = gets.chomp
-                if port == "0" then
-                    dentro = true
-                elsif ValidPort?(port.to_i) then
-                   BandwithOnPort(port)
-                else
-                    puts "Incorrect port".light_red
-                end
-            end
+            changeDeviceIp()
         elsif option == "4" then
           ListPortTypes(segmentIds)
-                    
+
         elsif option == "5" then
             puts ("Closing program".light_yellow).italic
             fin = true
