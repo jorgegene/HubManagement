@@ -12,10 +12,10 @@
       If you want to use a file to config the segments of the hub,
       you must use the following notation:
       <PortNumber1>:<SegmentNumber1>
-                 .
-                 .
-                 .
-    <PortNumberN>:<SegmentNumberN>     
+                   .
+                   .
+                   .
+      <PortNumberN>:<SegmentNumberN>     
 
 
 
@@ -28,7 +28,7 @@ require 'colorize'
 require 'netsnmp'
 include NETSNMP
 
-@host = "192.168.113.202"
+#@host = "192.168.113.202"
 
 
 =begin
@@ -132,7 +132,6 @@ def ListPortTypes(segmentIds)
     end
   end
   manager.close
-  puts "\n"
 end
 
 =begin
@@ -187,20 +186,27 @@ def PortsFromFile(filename,segmentIds)
 end
 
 begin
-  fin = false
-
-  option1 = "1)".bold + " List all ports.\n"
-  option2 = "2)".bold + " List port types\n"
-  option3 = "3)".bold + " Change port to a different segment.\n"
-  option4 = "4)".bold + " Change ports from a "+"file\n".bold
-  option5 = "5)".bold + " Exit"
-
-  menu ="Select operation number:\n".bold+option1+option2+option3+option4+option5
-  segmentIds = GetSegmentIds()
+  if (ARGV.length != 1)
+    puts "Incorrect number of params. ./HubScript.rb <IP>.".light_red
+    puts ARGV.length
+    fin = true
+  else
+    @host = ARGV[0]
+    puts "Welcome you will be working on ".light_magenta + ((ARGV[0].to_s).light_magenta).underline
+    segmentIds = GetSegmentIds()
+    fin = false
+    option1 = "1)".bold + " List all ports.\n"
+    option2 = "2)".bold + " List port types.\n"
+    option3 = "3)".bold + " Change port to a different segment.\n"
+    option4 = "4)".bold + " Change ports from a "+"file.\n".bold
+    option5 = "5)".bold + " Exit."
+  
+    menu ="Select operation number:\n".bold+option1+option2+option3+option4+option5
+  end
 
   while fin == false do
       puts menu.light_yellow
-      option = gets.chomp
+      option = STDIN.gets.chomp
       if option == "1" then # List all the ports
           ListAllPorts(segmentIds)
 
@@ -211,14 +217,14 @@ begin
         dentro = false
         while dentro == false do
             puts "Select port to move to a different segment [1-14]. 0 to go back to the Menu".light_cyan
-            port = gets.chomp
+            port = STDIN.gets.chomp
             if port == "0" then
               dentro = true
             elsif CheckValidPort(port) then
               dentro2 = false
               while dentro2 == false do
                 puts "Select new segment [1-4] for port ".light_cyan + (port.light_cyan).underline + ". 0 to go back to the port select".light_cyan
-                segment = gets.chomp
+                segment = STDIN.gets.chomp
                 if segment == "0" then
                   dentro2 = true
                 elsif CheckValidSegment(segment) then
@@ -237,11 +243,11 @@ begin
       elsif option == "4" then
         print "Introduce filepath: ".light_cyan
         $stdout.flush
-        filename = gets.chomp
+        filename = STDIN.gets.chomp
         if (File.exist?(filename)) then
           PortsFromFile(filename,segmentIds)
           puts
-          puts "RESULTADO DE LA CONFIGURACION".light_green
+          puts ("FINAL CONFIGURATION".light_green).bold
           ListAllPorts(segmentIds)
         else
           puts "The given filepath doesn't exist.".light_red
