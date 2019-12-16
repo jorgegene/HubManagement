@@ -19,13 +19,13 @@ def ListAllPorts(segmentIds)
   manager.walk(oid: "1.3.6.1.4.1.43.10.26.1.1.1.5").each do |oid_code, value|
     if(i < 15)
       if value == segmentIds.at(0)
-        puts "Port #{i}\t  Segment #{1}".green
+        puts "Port #{i}\t  Segment #{1}".light_green
       elsif value == segmentIds.at(1)
-        puts "Port #{i}\t  Segment #{2}".green
+        puts "Port #{i}\t  Segment #{2}".light_green
       elsif value == segmentIds.at(2)
-        puts "Port #{i}\t  Segment #{3}".green
+        puts "Port #{i}\t  Segment #{3}".light_green
       else
-        puts "Port #{i}\t  Segment #{4}".green
+        puts "Port #{i}\t  Segment #{4}".light_green
       end
       i = i + 1
     end
@@ -60,11 +60,11 @@ def ListPortTypes(segmentIds)
   manager.walk(oid: "1.3.6.1.4.1.43.10.26.1.1.1.7").each do |oid_code, value|
     if(i < 15)
       if value == 2
-        puts "Port #{i}\t  RJ45".green
+        puts "Port #{i}\t  RJ45".light_green
       elsif value == 255
-        puts "Port #{i}\t  Cascade".green
+        puts "Port #{i}\t  Cascade".light_green
       else
-        puts "Port #{i}\t  Unknown".green
+        puts "Port #{i}\t  Unknown".light_green
       end
       i = i + 1
     end
@@ -75,12 +75,12 @@ end
 def ChangePort2NewSegment(port, segmentIds)
   dentro = false
   while dentro == false do
-      puts "Select new segment [1-4] for port ".green + port.green + ". 0 to go back to the port select".green
+      puts "Select new segment [1-4] for port ".light_cyan + (port.light_cyan).underline + ". 0 to go back to the port select".light_cyan
       segment = gets.chomp
       segment = segment.to_i
       if segment == 0 then
         dentro = true
-      elsif segment > 0 && segment < 4 then
+      elsif segment > 0 && segment < 5 then
         query = "1.3.6.1.4.1.43.10.26.1.1.1.5.1." + port
         valor = segmentIds.at(segment-1).to_i
         puts query
@@ -112,17 +112,17 @@ end
 begin
     fin = false
 
-    option1 = "1) List all ports.\n"
-    option2 = "2) Change port to a different segment.\n"
-    option3 = "3) Bandwith on a port\n"
-    option4 = "4) List port types\n"
-    option5 = "5) Exit"
+    option1 = "1)".bold + " List all ports.\n"
+    option2 = "2)".bold + " Change port to a different segment.\n"
+    option3 = "3)".bold + " Bandwith on a port\n"
+    option4 = "4)".bold + " List port types\n"
+    option5 = "5)".bold + " Exit"
 
-    menu ="Select operation number:\n"+option1+option2+option3+option4+option5
+    menu ="Select operation number:\n".bold+option1+option2+option3+option4+option5
     segmentIds = GetSegmentIds()
 
     while fin == false do
-        puts menu.yellow
+        puts menu.light_yellow
         option = gets.chomp
         if option == "1" then # List all the ports
             ListAllPorts(segmentIds)
@@ -130,7 +130,7 @@ begin
         elsif option == "2" then  # Change port to different segment
           dentro = false
           while dentro == false do
-              puts "Select port to move to a different segment [1-14]. 0 to go back to the Menu".green
+              puts "Select port to move to a different segment [1-14]. 0 to go back to the Menu".light_cyan
               port = gets.chomp
               if port == "0" then
                   dentro = true
@@ -144,24 +144,24 @@ begin
         elsif option == "3" then
             dentro = false
             while dentro == false do
-                puts "Select port to see Bandwith [1-14]. 0 to go back to the Menu".green
+                puts "Select port to see Bandwith [1-14]. 0 to go back to the Menu".light_cyan
                 port = gets.chomp
                 if port == "0" then
                     dentro = true
                 elsif ValidPort?(port.to_i) then
                    BandwithOnPort(port)
                 else
-                    puts "Incorrect port".red
+                    puts "Incorrect port".light_red
                 end
             end
         elsif option == "4" then
           ListPortTypes(segmentIds)
                     
         elsif option == "5" then
-            puts "Closing program".yellow
+            puts ("Closing program".light_yellow).italic
             fin = true
         else
-            puts "Incorrect option, use a valid number".red
+            puts "Incorrect option, use a valid number".light_red
         end
 
     end
