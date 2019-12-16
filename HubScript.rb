@@ -38,7 +38,7 @@ def ValidPort?(port)
   portI = port.to_i
   if portI >= 1 && portI <= 14 then
       if port == 12
-          puts "Port 12 not allowed"
+          puts "Port 12 not allowed".red
           return false
       else
           return true
@@ -75,7 +75,7 @@ end
 def ChangePort2NewSegment(port, segmentIds)
   dentro = false
   while dentro == false do
-      puts "Select new segment [1-4] for port" + port + "or 0 to go back to the port select"
+      puts "Select new segment [1-4] for port ".green + port.green + ". 0 to go back to the port select".green
       segment = gets.chomp
       segment = segment.to_i
       if segment == 0 then
