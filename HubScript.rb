@@ -100,7 +100,7 @@ def ListAllPorts(segmentIds)
   s3 = Array.new
   s4 = Array.new
 
-  manager = Client.new(:host => $host,:community => 'security',:version => :SNMPv1)
+  manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
   manager.walk(oid: "1.3.6.1.4.1.43.10.26.1.1.1.5").each do |oid_code, value|
     if(i < 15)
       if value == segmentIds.at(0)
@@ -155,7 +155,7 @@ end
 =end
 def ListPortTypes(segmentIds)
   i = 1
-  manager = Client.new(:host => $host,:community => 'security',:version => :SNMPv1)
+  manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
   manager.walk(oid: "1.3.6.1.4.1.43.10.26.1.1.1.7").each do |oid_code, value|
     if(i < 15)
       if value == 2
@@ -192,7 +192,7 @@ end
 def GetSegmentIds()
   i = 1
   segmentIds = Array.new
-  manager = Client.new(:host => $host,:community => 'security',:version => :SNMPv1)
+  manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
   manager.walk(oid: "1.3.6.1.4.1.43.10.26.1.1.1.5").each do |oid_code, value|
     if(i > 14 && i < 19)
       segmentIds.push(value)
@@ -225,7 +225,6 @@ end
 begin
   if (ARGV.length != 1)
     puts "Incorrect number of params. ./HubScript.rb <IP>.".light_red
-    puts ARGV.length
     fin = true
   else
     @host = ARGV[0]
