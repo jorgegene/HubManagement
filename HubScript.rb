@@ -4,20 +4,20 @@
   File: HubManagement.rb
   Authors: Jose Felix Longares
            Jorge Generelo Gimeno
-  Libs installation: gem install netsnmp
-                     gem install colorize
+  Libs installation:  This script needs to install "colorize" 
+      and "netsnmp" to work propertly.
+      Use "sudo gem install colorize & sudo gem install netsnmp"
   Usage: Execute the script with ./HubScript <IP> 
-    where IP is the remote hub you want to manage.
-    If you want to use a file to config the segments of the hub,
-    you must use the following notation:
-    <PortNumber1>:<SegmentNumber1>
+      where IP is the remote hub you want to manage.
+      If you want to use a file to config the segments of the hub,
+      you must use the following notation:
+      <PortNumber1>:<SegmentNumber1>
                  .
                  .
                  .
     <PortNumberN>:<SegmentNumberN>     
 
- This script needs to install "colorize" and "netsnmp" to work propertly.
- Use "sudo gem install colorize & sudo gem install netsnmp"
+
 
  Change the @host variable with the ip of the device you're going to admin.
  Run the script like following: "./HubManagement.rd"
