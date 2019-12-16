@@ -1,11 +1,32 @@
 #!/usr/bin/ruby
 
+=begin
+  File: HubManagement.rb
+  Authors: Jose Felix Longares
+           Jorge Generelo Gimeno
+  Libs installation: gem install netsnmp
+                     gem install colorize
+  Usage: Execute the script with ./HubScript <IP> 
+    where IP is the remote hub you want to manage.
+    If you want to use a file to config the segments of the hub,
+    you must use the following notation:
+    <PortNumber1>:<SegmentNumber1>
+                 .
+                 .
+                 .
+    <PortNumberN>:<SegmentNumberN>     
+=end
+
 require 'colorize'
 require 'netsnmp'
 include NETSNMP
 
 @host = "192.168.113.202"
 
+
+=begin
+  Return the number of digits of the given number
+=end
 def DigitsNumber(number)
   d = 1
   i = number
@@ -16,7 +37,9 @@ def DigitsNumber(number)
   return d
 end
 
-
+=begin
+  Returns true if the given port is a valid port for 3Com SSII PS40 Hub.
+=end
 def CheckValidPort(port)
   length = port.length
   port = port.to_i
@@ -32,6 +55,9 @@ def CheckValidPort(port)
   end
 end
 
+=begin
+  Returns true if the given segment is a valid port for 3Com SSII PS40 Hub.
+=end
 def CheckValidSegment(segment)
   length = segment.length
   segment = segment.to_i
@@ -47,6 +73,9 @@ def CheckValidSegment(segment)
   end
 end
 
+=begin
+  Returns the interface value of the given port
+=end
 def GetPortInterface(port)
     manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
     oid = "1.3.6.1.4.1.43.10.26.1.1.1.5.1."+port
@@ -54,6 +83,9 @@ def GetPortInterface(port)
     return value
 end
 
+=begin
+  Given a list of segment's IDs, prints the segment of each port.
+=end
 def ListAllPorts(segmentIds)
   i = 1
   manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
@@ -74,13 +106,9 @@ def ListAllPorts(segmentIds)
   manager.close
 end
 
-def BandwithOnPort(port)
-    value = GetPortInterface(port)
-    manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
-    oid = "1.3.6.1.4.1.43.10.26.1.1.1.5.1."+port
-    value = manager.get(oid: oid)
-end
-
+=begin
+  Given a list of segment's IDs, prints the type of each port.
+=end
 def ListPortTypes(segmentIds)
   i = 1
   manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
@@ -100,6 +128,10 @@ def ListPortTypes(segmentIds)
   puts "\n"
 end
 
+=begin
+  Given a list of segment's IDs, a port number and a segment number,
+  changes the selected port to the selected segment.
+=end
 def ChangePort2NewSegment(port, segmentIds, segment)
   segment = segment.to_i
   query = "1.3.6.1.4.1.43.10.26.1.1.1.5.1." + port
@@ -111,6 +143,9 @@ def ChangePort2NewSegment(port, segmentIds, segment)
   puts "Port ".light_green + (port.light_green).underline + " changed to segment ".light_green + (segment.light_green).underline
 end
 
+=begin
+  Returns a list of segmentIds
+=end
 def GetSegmentIds()
   i = 1
   segmentIds = Array.new
@@ -125,6 +160,10 @@ def GetSegmentIds()
   return segmentIds
 end
 
+=begin
+  Given a list of segment's IDs and the name of an existing file,
+  changes the segment related to each port in order to the file info.
+=end
 def PortsFromFile(filename,segmentIds)
   file_data = File.read(filename).split
   nline = 0
@@ -144,13 +183,12 @@ begin
   fin = false
 
   option1 = "1)".bold + " List all ports.\n"
-  option2 = "2)".bold + " Change port to a different segment.\n"
-  option3 = "3)".bold + " Bandwith on a port\n"
-  option4 = "4)".bold + " List port types\n"
-  option5 = "5)".bold + " Change ports from a "+"file\n".bold
-  option6 = "6)".bold + " Exit"
+  option2 = "2)".bold + " List port types\n"
+  option3 = "3)".bold + " Change port to a different segment.\n"
+  option4 = "4)".bold + " Change ports from a "+"file\n".bold
+  option5 = "5)".bold + " Exit"
 
-  menu ="Select operation number:\n".bold+option1+option2+option3+option4+option5+option6
+  menu ="Select operation number:\n".bold+option1+option2+option3+option4+option5
   segmentIds = GetSegmentIds()
 
   while fin == false do
@@ -159,7 +197,10 @@ begin
       if option == "1" then # List all the ports
           ListAllPorts(segmentIds)
 
-      elsif option == "2" then  # Change port to different segment
+      elsif option == "2" then
+        ListPortTypes(segmentIds)
+
+      elsif option == "3" then  # Change port to different segment
         dentro = false
         while dentro == false do
             puts "Select port to move to a different segment [1-14]. 0 to go back to the Menu".light_cyan
@@ -186,24 +227,7 @@ begin
             end
         end
 
-      elsif option == "3" then
-          dentro = false
-          while dentro == false do
-              puts "Select port to see Bandwith [1-14]. 0 to go back to the Menu".light_cyan
-              port = gets.chomp
-              if port == "0" then
-                  dentro = true
-              elsif ValidPort?(port.to_i) then
-                  BandwithOnPort(port)
-              else
-                  puts "Incorrect port".light_red
-              end
-          end
-
       elsif option == "4" then
-        ListPortTypes(segmentIds)
-
-      elsif option == "5" then
         print "Introduce filepath: ".light_cyan
         $stdout.flush
         filename = gets.chomp
@@ -215,7 +239,7 @@ begin
         else
           puts "The given filepath doesn't exist.".light_red
         end
-      elsif option == "6" then
+      elsif option == "5" then
           puts ("Closing program".light_yellow).italic
           fin = true
       else
