@@ -54,6 +54,24 @@ def BandwithOnPort(port)
     value = manager.get(oid: oid)
 end
 
+def ListPortTypes(segmentIds)
+  i = 1
+  manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
+  manager.walk(oid: "1.3.6.1.4.1.43.10.26.1.1.1.7").each do |oid_code, value|
+    if(i < 15)
+      if value == 2
+        puts "Port #{i}\t  RJ45".green
+      elsif value == 255
+        puts "Port #{i}\t  Cascade".green
+      else
+        puts "Port #{i}\t  Unknown".green
+      end
+      i = i + 1
+    end
+  end
+  manager.close
+  puts "\n"
+end
 def ChangePort2NewSegment(port, segmentIds)
   dentro = false
   while dentro == false do
@@ -97,9 +115,10 @@ begin
     option1 = "1) List all ports.\n"
     option2 = "2) Change port to a different segment.\n"
     option3 = "3) Bandwith on a port\n"
-    option4 = "4) Exit"
+    option4 = "4) List port types\n"
+    option5 = "5) Exit"
 
-    menu ="Select operation number:\n"+option1+option2+option3+option4
+    menu ="Select operation number:\n"+option1+option2+option3+option4+option5
     segmentIds = GetSegmentIds()
 
     while fin == false do
@@ -111,7 +130,7 @@ begin
         elsif option == "2" then  # Change port to different segment
           dentro = false
           while dentro == false do
-              puts "Select port to move to a different segment [1-14] or 0 to go back to the Menu"
+              puts "Select port to move to a different segment [1-14]. 0 to go back to the Menu".green
               port = gets.chomp
               if port == "0" then
                   dentro = true
@@ -135,8 +154,10 @@ begin
                     puts "Incorrect port".red
                 end
             end
-
         elsif option == "4" then
+          ListPortTypes(segmentIds)
+                    
+        elsif option == "5" then
             puts "Closing program".yellow
             fin = true
         else
