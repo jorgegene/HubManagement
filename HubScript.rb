@@ -15,6 +15,13 @@
                  .
                  .
     <PortNumberN>:<SegmentNumberN>     
+
+ This script needs to install "colorize" and "netsnmp" to work propertly.
+ Use "sudo gem install colorize & sudo gem install netsnmp"
+
+ Change the @host variable with the ip of the device you're going to admin.
+ Run the script like following: "./HubManagement.rd"
+
 =end
 
 require 'colorize'
