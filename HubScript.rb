@@ -4,10 +4,10 @@
   File: HubManagement.rb
   Authors: Jose Felix Longares
            Jorge Generelo Gimeno
-  Libs installation:  This script needs to install "colorize" 
+  Libs installation:  This script needs to install "colorize"
       and "netsnmp" to work propertly.
       Use "sudo gem install colorize & sudo gem install netsnmp"
-  Usage: Execute the script with ./HubScript <IP> 
+  Usage: Execute the script with ./HubScript <IP>
       where IP is the remote hub you want to manage.
       If you want to use a file to config the segments of the hub,
       you must use the following notation:
@@ -19,7 +19,7 @@
 
 
 
- Change the @host variable with the ip of the device you're going to admin.
+ Change the $host variable with the ip of the device you're going to admin.
  Run the script like following: "./HubManagement.rd"
 
 =end
@@ -84,7 +84,7 @@ end
   Returns the interface value of the given port
 =end
 def GetPortInterface(port)
-    manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
+    manager = Client.new(:host => $host,:community => 'security',:version => :SNMPv1)
     oid = "1.3.6.1.4.1.43.10.26.1.1.1.5.1."+port
     value = manager.get(oid: oid)
     return value
@@ -95,20 +95,57 @@ end
 =end
 def ListAllPorts(segmentIds)
   i = 1
-  manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
+  s1 = Array.new
+  s2 = Array.new
+  s3 = Array.new
+  s4 = Array.new
+
+  manager = Client.new(:host => $host,:community => 'security',:version => :SNMPv1)
   manager.walk(oid: "1.3.6.1.4.1.43.10.26.1.1.1.5").each do |oid_code, value|
     if(i < 15)
       if value == segmentIds.at(0)
-        puts "Port #{i}\t  Segment #{1}".light_green
+        s1.push(i.to_s)
       elsif value == segmentIds.at(1)
-        puts "Port #{i}\t  Segment #{2}".light_green
+        s2.push(i.to_s)
       elsif value == segmentIds.at(2)
-        puts "Port #{i}\t  Segment #{3}".light_green
+        s3.push(i.to_s)
       else
-        puts "Port #{i}\t  Segment #{4}".light_green
+        s4.push(i.to_s)
       end
       i = i + 1
     end
+  end
+  puts "* Segment 1:".light_green.bold
+  if !s1.empty?
+    s1.each do |p|
+      puts ("\t- Port " + p).green
+    end
+  else
+    puts "\n"
+  end
+  puts "\n* Segment 2:".light_green.bold
+  if !s2.empty?
+    s2.each do |p|
+      puts ("\t- Port " + p).green
+    end
+  else
+    puts "\n"
+  end
+  puts "\n* Segment 3:".light_green.bold
+  if !s3.empty?
+    s3.each do |p|
+      puts ("\t- Port " + p).green
+    end
+  else
+    puts "\n"
+  end
+  puts "\n* Segment 4:".light_green.bold
+  if !s4.empty?
+    s4.each do |p|
+      puts ("\t- Port " + p).green
+    end
+  else
+    puts "\n"
   end
   manager.close
 end
@@ -118,7 +155,7 @@ end
 =end
 def ListPortTypes(segmentIds)
   i = 1
-  manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
+  manager = Client.new(:host => $host,:community => 'security',:version => :SNMPv1)
   manager.walk(oid: "1.3.6.1.4.1.43.10.26.1.1.1.7").each do |oid_code, value|
     if(i < 15)
       if value == 2
@@ -155,7 +192,7 @@ end
 def GetSegmentIds()
   i = 1
   segmentIds = Array.new
-  manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
+  manager = Client.new(:host => $host,:community => 'security',:version => :SNMPv1)
   manager.walk(oid: "1.3.6.1.4.1.43.10.26.1.1.1.5").each do |oid_code, value|
     if(i > 14 && i < 19)
       segmentIds.push(value)
