@@ -1,5 +1,15 @@
 #!/usr/bin/ruby
 
+=begin
+
+ This script needs to install "colorize" and "netsnmp" to work propertly.
+ Use "sudo gem install colorize & sudo gem install netsnmp"
+
+ Change the @host variable with the ip of the device you're going to admin.
+ Run the script like following: "./HubManagement.rd"
+
+=end
+
 require 'colorize'
 require 'netsnmp'
 include NETSNMP
@@ -13,6 +23,7 @@ def GetPortInterface(port)
     return value
 end
 
+# List all ports of the device followed by the segment they belong to.
 def ListAllPorts(segmentIds)
   i = 1
   manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
@@ -34,6 +45,8 @@ def ListAllPorts(segmentIds)
   puts "\n"
 end
 
+
+# Test if the port given by the user is correct
 def ValidPort?(port)
   portI = port.to_i
   if portI >= 1 && portI <= 14 then
@@ -47,13 +60,7 @@ def ValidPort?(port)
   return false
 end
 
-def BandwithOnPort(port)
-    value = GetPortInterface(port)
-    manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
-    oid = "1.3.6.1.4.1.43.10.26.1.1.1.5.1."+port
-    value = manager.get(oid: oid)
-end
-
+# List all ports of the device followed by its type
 def ListPortTypes(segmentIds)
   i = 1
   manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
@@ -72,6 +79,8 @@ def ListPortTypes(segmentIds)
   manager.close
   puts "\n"
 end
+
+# Change the given port to the new segment
 def ChangePort2NewSegment(port, segmentIds)
   dentro = false
   while dentro == false do
@@ -95,6 +104,7 @@ def ChangePort2NewSegment(port, segmentIds)
   end
 end
 
+# Collect all the segments ids (used to format the info showed by the script)
 def GetSegmentIds()
   i = 1
   segmentIds = Array.new
@@ -109,6 +119,7 @@ def GetSegmentIds()
   return segmentIds
 end
 
+# Main body of the script
 begin
     fin = false
 
