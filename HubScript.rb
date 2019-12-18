@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 
 =begin
+
   File: HubManagement.rb
   Authors: Jose Felix Longares
            Jorge Generelo Gimeno
@@ -16,11 +17,6 @@
                    .
                    .
       <PortNumberN>:<SegmentNumberN>     
-
-
-
- Change the $host variable with the ip of the device you're going to admin.
- Run the script like following: "./HubManagement.rd"
 
 =end
 
@@ -84,7 +80,7 @@ end
   Returns the interface value of the given port
 =end
 def GetPortInterface(port)
-    manager = Client.new(:host => $host,:community => 'security',:version => :SNMPv1)
+    manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
     oid = "1.3.6.1.4.1.43.10.26.1.1.1.5.1."+port
     value = manager.get(oid: oid)
     return value
@@ -222,6 +218,50 @@ def PortsFromFile(filename,segmentIds)
   end
 end
 
+=begin
+  Returns the netmask
+=end
+def GetNetMask()
+  manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
+  oid = "1.3.6.1.2.1.4.20.1.3."+@host
+  value = manager.get(oid: oid)
+  return value
+end
+
+=begin
+  Returns the IP
+=end
+def GetIP()
+  manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
+  oid = "1.3.6.1.2.1.4.20.1.1."+@host
+  value = manager.get(oid: oid)
+  return value
+end
+
+=begin
+  Returns the name of the device
+=end
+def GetDevice()
+  manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
+  oid = "1.3.6.1.2.1.1.1.0"
+  value = manager.get(oid: oid)
+  return value
+end
+
+=begin
+  Returns the UpTime of the device
+=end
+def GetUpTime()
+  manager = Client.new(:host => @host,:community => 'security',:version => :SNMPv1)
+  oid = "1.3.6.1.2.1.1.3.0"
+  value = manager.get(oid: oid)
+  return value
+end
+
+
+=begin
+  Main loop of the code with the menu
+=end
 begin
   if (ARGV.length != 1)
     puts "Incorrect number of params. ./HubScript.rb <IP>.".light_red
@@ -235,9 +275,10 @@ begin
     option2 = "2)".bold + " List port types.\n"
     option3 = "3)".bold + " Change port to a different segment.\n"
     option4 = "4)".bold + " Change ports from a "+"file.\n".bold
-    option5 = "5)".bold + " Exit."
+    option5 = "5)".bold + " Info about the system\n"
+    option6 = "6)".bold + " Exit."
   
-    menu ="Select operation number:\n".bold+option1+option2+option3+option4+option5
+    menu ="Select operation number:\n".bold+option1+option2+option3+option4+option5+option6
   end
 
   while fin == false do
@@ -246,7 +287,7 @@ begin
       if option == "1" then # List all the ports
           ListAllPorts(segmentIds)
 
-      elsif option == "2" then
+      elsif option == "2" then #List types of all the ports
         ListPortTypes(segmentIds)
 
       elsif option == "3" then  # Change port to different segment
@@ -276,7 +317,7 @@ begin
             end
         end
 
-      elsif option == "4" then
+      elsif option == "4" then # Change ports with an input file
         print "Introduce filepath: ".light_cyan
         $stdout.flush
         filename = STDIN.gets.chomp
@@ -288,7 +329,17 @@ begin
         else
           puts "The given filepath doesn't exist.".light_red
         end
-      elsif option == "5" then
+      elsif option == "5" then # Shows info about the device
+        device = GetDevice()
+        ip = GetIP()
+        netmask = GetNetMask()
+        uptime = GetUpTime()
+        puts ("You are coneccted to: ".light_green + (device.to_s).light_green).bold
+        puts "IP Address: \t".light_green + (ip.to_s).light_green
+        puts "Netmask: \t".light_green + (netmask.to_s).light_green
+        puts "Uptime: \t".light_green + (uptime.to_s).light_green
+
+      elsif option == "6" then # Close the program
           puts ("Closing program".light_yellow).italic
           fin = true
       else
